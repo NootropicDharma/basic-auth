@@ -1,9 +1,16 @@
 const router = require("express").Router()
 
+
 const User = require("../models/User.model")
+const mongoose = require("mongoose")
 
 const bcrypt = require("bcryptjs")
 
+
+
+
+
+// SIGN UP 
 
 router.get("/auth/signup", (req, res, next)=>{
 
@@ -31,6 +38,25 @@ router.post("/auth/signup", (req, res, next)=>{
     
     const {username, email, passwordHash} = req.body
 
+
+    //verify and make sure the info is complete 
+
+    if(!email || !username || !passwordHash){
+        res.render("auth/signup", {errorMessage: 'Todos los campos deben estar rellenados.'})
+        return
+    }
+
+
+    const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+
+    if (!regex.test(passwordHash)) {
+        res
+        .status(500)
+        .render("auth/signup", {errorMessage: 'Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.'})
+        return;
+    }
+
+
     const saltRounds = 10
 
     const salt = bcrypt.genSaltSync(saltRounds)
@@ -41,24 +67,68 @@ router.post("/auth/signup", (req, res, next)=>{
     req.body.passwordHash = hashPassword
 
 
-    
-
-
     User.create(req.body)
     .then(data=>{
-        res.redirect(`/userProfile/${data.id}`)
+        // res.redirect(`/userProfile/${data.id}`)
+        res.render("users/user-profile", data)
     })
-    .catch(err=>{console.log(err)})
+    .catch(err=> {
+        if (err instanceof mongoose.Error.ValidationError){
+            res.status(500).render("auth/signup",{ errorMessage: err.message})
+        }
+        else if (err.code === 11000){
+            res.status(500).render("auth/signup", {
+                errorMessage: "Username and email need to be unique. Either username or email is already being used" 
+            })
+        
+
+        } else {
+            next(err)
+        }
+    })
 
 })
 
 
 
+// LOGIN
 
 
+router.get("/auth/login", (req, res, next)=>{
 
 
+    res.render("auth/login")
 
+})
+
+
+router.post("/auth/login", (req, res, next)=>{
+
+//verify if the email and password are valid
+    const {email, password} = req.body
+
+    User.findOne({email})
+    .then(data=>{
+        console.log("usuario encontrado", data)
+        if(!data){
+            res.render("auth/login", {errorMessage: "User doesn't exist"})
+            return
+        } else if (bcrypt.compareSync(password, data.passwordHash)) {
+            res.render("users/user-profile", data)
+        } else {
+            res.render("auth/login", { errorMessage: "incorrect password"})
+        }
+        
+        
+  
+    })
+    .catch(err=>console.log(err))
+
+
+    
+
+
+})
 
 
 

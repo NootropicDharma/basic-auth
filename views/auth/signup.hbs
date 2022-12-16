@@ -4,18 +4,28 @@
     <form action="/auth/signup" method="post">
 
     <label> Username
-        <input type="text" name="username" placeholder="ironhacker"/>
+        <input type="text" name="username" placeholder="ironhacker"required minlength="6"/>
     </label>
     <label> Email
-        <input type="email" name="email" placeholder="rockstar@ironhack.com"/>
+        <input type="email" name="email" placeholder="rockstar@ironhack.com" required/>
     </label>
     <label> Password
-        <input type="password" name="passwordHash" placeholder="********"/>
+        <input type="password" name="passwordHash" placeholder="********"required/>
     </label>
 
     <button type="submit" class="btn btn-secondary">Create account</button>
-    
+    {{#if errorMessage}}
+
+      <div class="alert alert-danger" role="alert">
+       {{errorMessage}}
+    </div>
+
+    {{/if}}
 
     </form>
+
+    {{!-- <script>
+        // javascript code here ("hi baby");  this is in case you wanted to use javscript for events etc 
+    </script> --}}
 
 </div>
