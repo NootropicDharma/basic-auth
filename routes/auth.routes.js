@@ -41,7 +41,7 @@ router.post("/auth/signup", (req, res, next)=>{
 
     //verify and make sure the info is complete 
 
-    if(!email || !username || !passwordHash){
+    if(!email || !username|| !passwordHash){
         res.render("auth/signup", {errorMessage: 'Todos los campos deben estar rellenados.'})
         return
     }
@@ -103,7 +103,8 @@ router.get("/auth/login", (req, res, next)=>{
 
 
 router.post("/auth/login", (req, res, next)=>{
-
+    
+    console.log(req.session)
 //verify if the email and password are valid
     const {email, password} = req.body
 
