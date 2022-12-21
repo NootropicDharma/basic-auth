@@ -1,31 +1,40 @@
-const session = require("express-session")
+// config/session.config.js
 
+// require session
+const session = require("express-session");
 
-module.exports = app => {
+// ADDED: require mongostore
+const MongoStore = require("connect-mongo");
 
+// ADDED: require mongoose
+const mongoose = require("mongoose");
 
+// since we are going to USE this middleware in the app.js,
+// let's export it and have it receive a parameter
+module.exports = (app) => {
+  // <== app is just a placeholder here
+  // but will become a real "app" in the app.js
+  // when this file gets imported/required there
 
-    app.set("trust proxy", 1);
+  // use session
+  app.use(
+    session({
+      secret: process.env.SESS_SECRET,
+      resave: true,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        maxAge: 60000 // 60 * 1000 ms === 1 min
+      }, // ADDED code below !!!
+      store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI || "mongodb://localhost/basic-auth"
 
-
-    app.use(
-        session({
-            secret: process.env.SESS_SECRET,  //similar to salt, a unique root key secret word
-            resave: true,
-            saveUninitialized: false,
-            cookie: {
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "1ax",
-                secure: process.env.NODE_ENV === "production" , 
-                httpOnly: true,
-                maxAge: 60000  // 60 * 1000(miliseconds) ms === 1 min         time you will be logged in   
-            }
-        })
-
-    );
-
-} 
-
-
+        // ttl => time to live
+        // ttl: 60 * 60 * 24 // 60sec * 60min * 24h => 1 day
+      })
+    })
+  );
+};
 
 
 

@@ -19,7 +19,14 @@ const User = require("../models/User.model")
 
 
 
+router.get("/userProfile", (req, res, next)=>{
 
+
+    res.render('users/user-profile', { userInSession: req.session.currentUser });
+
+
+
+})
 
 
 

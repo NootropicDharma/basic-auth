@@ -10,6 +10,8 @@ const bcrypt = require("bcryptjs")
 
 
 
+
+
 // SIGN UP 
 
 router.get("/auth/signup", (req, res, next)=>{
@@ -68,9 +70,9 @@ router.post("/auth/signup", (req, res, next)=>{
 
 
     User.create(req.body)
-    .then(data=>{
+    .then(()=>{
         // res.redirect(`/userProfile/${data.id}`)
-        res.render("users/user-profile", data)
+        res.redirect("/")
     })
     .catch(err=> {
         if (err instanceof mongoose.Error.ValidationError){
@@ -91,7 +93,7 @@ router.post("/auth/signup", (req, res, next)=>{
 
 
 
-// LOGIN
+// LOGIN and creation of session where the user will be added to the object of the session to then be able to use anywhere in the app. we are not even accessing the info from our database but rather from our session which added the user info when we logged in 
 
 
 router.get("/auth/login", (req, res, next)=>{
@@ -104,18 +106,24 @@ router.get("/auth/login", (req, res, next)=>{
 
 router.post("/auth/login", (req, res, next)=>{
     
-    console.log(req.session)
+    
 //verify if the email and password are valid
     const {email, password} = req.body
 
+    
+    
     User.findOne({email})
     .then(data=>{
-        console.log("usuario encontrado", data)
+        
+        
         if(!data){
             res.render("auth/login", {errorMessage: "User doesn't exist"})
             return
         } else if (bcrypt.compareSync(password, data.passwordHash)) {
-            res.render("users/user-profile", data)
+           // res.render("users/user-profile", data)
+           req.session.currentUser = data;
+            res.redirect('/userProfile');
+
         } else {
             res.render("auth/login", { errorMessage: "incorrect password"})
         }
@@ -134,7 +142,16 @@ router.post("/auth/login", (req, res, next)=>{
 
 
 
+//LOGOUT 
 
+router.post("/auth/logout", (req, res, next)=>{
+    req.session.destroy( err =>{
+        if(err) next (err);
+        res.redirect("/");
+
+        
+    });
+});
 
 
 
