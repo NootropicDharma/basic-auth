@@ -2,6 +2,7 @@ const router = require("express").Router()
 
 const User = require("../models/User.model")
 
+const {isLoggedIn, isLoggedOut} = require("../middleware/route.guard")
 
 // router.get("/userProfile/:id", (req, res, next)=>{
 
@@ -19,7 +20,7 @@ const User = require("../models/User.model")
 
 
 
-router.get("/userProfile", (req, res, next)=>{
+router.get("/userProfile", isLoggedIn, (req, res, next)=>{
 
 
     res.render('users/user-profile', { userInSession: req.session.currentUser });

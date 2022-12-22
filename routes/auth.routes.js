@@ -130,7 +130,7 @@ const mipaso3 = (req, res, next)=>{
 
 
 
-router.post("/auth/login", mipaso2, mipaso3,  (req, res, next)=>{
+router.post("/auth/login", (req, res, next)=>{
     
     
     //verify if the email and password are valid
