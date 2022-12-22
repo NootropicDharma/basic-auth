@@ -6,7 +6,7 @@ const mongoose = require("mongoose")
 
 const bcrypt = require("bcryptjs")
 
-
+const {isLoggedIn, isLoggedOut} = require ("../middleware/route.guard.js")
 
 
 
@@ -104,10 +104,36 @@ router.get("/auth/login", (req, res, next)=>{
 })
 
 
-router.post("/auth/login", (req, res, next)=>{
+
+
+//Middleware example that prevents you from logging in 
+
+
+
+
+const mipaso2 = (req, res, next)=>{
+    req.body.accesoAuthorizado = false
+    next()
+}
+
+const mipaso3 = (req, res, next)=>{
+    if(req.body.accesoAuthorizado){
+        console.log("you are clear")
+        next()
+    } else {
+        console.log("unathorized user")
+        //next() by not adding next the function never goes next to the req, res, of the router.post therefore it will stop
+        next()
+    } 
+}
+
+
+
+
+router.post("/auth/login", mipaso2, mipaso3,  (req, res, next)=>{
     
     
-//verify if the email and password are valid
+    //verify if the email and password are valid
     const {email, password} = req.body
 
     
